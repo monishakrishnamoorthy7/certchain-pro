@@ -31,5 +31,5 @@ export default function VerifyResults({ hash }) {
     }
     return <ResultBox title="Verification failed" message={state.error} tone="error" />;
   }
-  return <VerificationDetails data={state.data} />;
+  return <VerificationDetails data={state.data?.certificate} />;
 }
