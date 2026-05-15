@@ -18,7 +18,10 @@ export default function VerifyResults({ hash }) {
     if (!hash) return;
     if (hasVerified.current) return;
     hasVerified.current = true;
-    verifyByHash(hash).catch(() => {});
+    console.debug("VerifyResults: starting verifyByHash", { hash });
+    verifyByHash(hash).catch((err) => {
+      console.error("VerifyResults: verifyByHash error", err);
+    });
     // only run when `hash` or verifyByHash changes
   }, [hash, verifyByHash]);
 
