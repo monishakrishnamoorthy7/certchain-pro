@@ -6,6 +6,7 @@ import Field from "../Field.jsx";
 import LoadingBox from "../LoadingBox.jsx";
 import ResultBox from "../ResultBox.jsx";
 import useVerification from "../../hooks/useVerification.js";
+import VerifyResults from "../VerifyResults.jsx";
 
 export default function VerifyPanel({ defaultHash }) {
   const [file, setFile] = useState(null);
@@ -75,6 +76,8 @@ export default function VerifyPanel({ defaultHash }) {
         >
           Verify Uploaded File
         </button>
+
+        {hash && <VerifyResults hash={hash} />}
 
         {state.status === "loading" ? <LoadingBox label="Querying network..." /> : null}
         {state.status === "idle" ? (
