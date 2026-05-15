@@ -1,0 +1,21 @@
+﻿Compiling contract...
+PRIVATE_KEY wallet has zero balance ΓÇö falling back to RPC account
+Deploying using RPC account: JsonRpcSigner {
+  provider: JsonRpcProvider {},
+  address: '0xa649e89a174A4cB10be6ee14F65b372DcdACB4Eb'
+}
+node : Factory deploy failed, attempting raw deployment via 
+signer.sendTransaction() factory runner does not support sending transactions 
+(operation="sendTransaction", code=UNSUPPORTED_OPERATION, version=6.16.0)
+At line:1 char:1
++ node scripts/deploy_manual.js 2>&1 | Out-File deploy_final.txt -Encod ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Factory deploy ...version=6.16.0) 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+TypeError: signer.sendTransaction is not a function
+    at main (C:\Users\LENOVO\OneDrive\Desktop\certificate-project\scripts\deplo
+y_manual.js:89:35)
+    at process.processTicksAndRejections 
+(node:internal/process/task_queues:105:5)

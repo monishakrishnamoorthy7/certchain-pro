@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Verification System v2.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .auth-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-container {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .auth-form {
+            flex: 1;
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-status {
+            flex: 1;
+            text-align: center;
+            padding: 20px;
+            background: #f0f7ff;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .auth-status.active {
+            display: block;
+        }
+
+        .user-info {
+            margin-bottom: 15px;
+        }
+
+        .user-email {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .user-role {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"],
+        input[type="file"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="text"]:focus,
+        input[type="file"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button.secondary {
+            background: #e0e0e0;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        button.secondary:hover {
+            background: #d0d0d0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        button.danger {
+            background: #ff6b6b;
+        }
+
+        button.danger:hover {
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            width: auto;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .content-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .result.success {
+            display: block;
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .result.error {
+            display: block;
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+
+        .result.info {
+            display: block;
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .result-content {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .result-content strong {
+            color: #667eea;
+        }
+
+        .result-content p {
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 20px;
+            background: #f5f5f5;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #f0f7ff;
+            border-color: #764ba2;
+        }
+
+        .file-input-label input {
+            display: none;
+        }
+
+        .file-name {
+            color: #667eea;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .certificate-details {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 150px;
+        }
+
+        .detail-value {
+            color: #333;
+            word-break: break-all;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .status-valid {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .status-invalid {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        .status-revoked {
+            background: #ffe0b2;
+            color: #e65100;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 30px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                width: 100%;
+                text-align: left;
+                border-bottom: none;
+                border-left: 3px solid transparent;
+                padding-left: 0;
+            }
+
+            .tab-btn.active {
+                border-left-color: #667eea;
+                border-bottom: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔐 Certificate Verification System</h1>
+            <p>Blockchain-powered certificate storage, verification, and revocation</p>
+        </div>
+
+        <!-- Authentication Section -->
+        <div class="auth-section">
+            <div class="auth-container">
+                <!-- Login Form -->
+                <div class="auth-form" id="loginForm">
+                    <h2 style="margin-bottom: 20px;">Admin Login</h2>
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" placeholder="admin@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter password" required>
+                    </div>
+                    <button onclick="login()">Login</button>
+                    <button class="secondary" onclick="toggleAuthForm()">Create Account</button>
+                </div>
+
+                <!-- Registration Form -->
+                <div class="auth-form" id="registerForm">
+                    <h2 style="margin-bottom: 20px;">Create Admin Account</h2>
+                    <div class="form-group">
+                        <label for="regName">Full Name</label>
+                        <input type="text" id="regName" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Email Address</label>
+                        <input type="email" id="regEmail" placeholder="admin@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Password</label>
+                        <input type="password" id="regPassword" placeholder="Min 8 characters" required>
+                    </div>
+                    <button onclick="register()">Create Account</button>
+                    <button class="secondary" onclick="toggleAuthForm()">Back to Login</button>
+                </div>
+
+                <!-- User Status -->
+                <div class="auth-status" id="authStatus">
+                    <div class="user-info">
+                        <div class="user-email" id="userEmail"></div>
+                        <div class="user-role">🔐 Admin</div>
+                        <p style="color: #666; margin-bottom: 15px;">Token expires in 24 hours</p>
+                    </div>
+                    <button class="danger" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content (Requires Authentication) -->
+        <div id="mainContent" style="display: none;">
+            <!-- Tabs Navigation -->
+            <div class="content-section">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('upload')">📤 Upload Certificate</button>
+                    <button class="tab-btn" onclick="switchTab('verify')">✅ Verify Certificate</button>
+                    <button class="tab-btn" onclick="switchTab('revoke')">❌ Revoke Certificate</button>
+                </div>
+
+                <!-- Upload Tab -->
+                <div class="tab-content active" id="uploadTab">
+                    <h2 class="section-title">Upload & Store Certificate</h2>
+                    <form onsubmit="uploadCertificate(event)">
+                        <div class="form-group">
+                            <label>Certificate File</label>
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label">
+                                    <input type="file" id="uploadFile" required onchange="updateFileName(this)">
+                                    <p>📁 Click or drag to select certificate file</p>
+                                    <p class="file-name" id="uploadFileName"></p>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="studentName">Student Name *</label>
+                            <input type="text" id="studentName" placeholder="John Doe" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="course">Course Name *</label>
+                            <input type="text" id="course" placeholder="Blockchain Fundamentals" required>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="submit">📤 Upload & Store</button>
+                            <button type="button" class="secondary" onclick="clearUploadForm()">Clear</button>
+                        </div>
+
+                        <div class="loading" id="uploadLoading">
+                            <div class="spinner"></div>
+                            <p style="margin-top: 10px; color: #666;">Processing certificate...</p>
+                        </div>
+
+                        <div class="result" id="uploadResult"></div>
+                    </form>
+                </div>
+
+                <!-- Verify Tab -->
+                <div class="tab-content" id="verifyTab">
+                    <h2 class="section-title">Verify Certificate</h2>
+                    <div class="form-group">
+                        <label>Certificate File or Hash</label>
+                        <div class="file-input-wrapper">
+                            <label class="file-input-label">
+                                <input type="file" id="verifyFile" onchange="updateFileName(this, 'verify')">
+                                <p>📁 Click or drag to select certificate file</p>
+                                <p class="file-name" id="verifyFileName"></p>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin: 20px 0; color: #999;">
+                        OR
+                    </div>
+
+                    <div class="form-group">
+                        <label for="verifyHash">Certificate Hash</label>
+                        <input type="text" id="verifyHash" placeholder="64-character SHA-256 hash">
+                    </div>
+
+                    <button onclick="verifyCertificate()">✅ Verify</button>
+
+                    <div class="loading" id="verifyLoading">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 10px; color: #666;">Verifying certificate...</p>
+                    </div>
+
+                    <div class="result" id="verifyResult"></div>
+                </div>
+
+                <!-- Revoke Tab -->
+                <div class="tab-content" id="revokeTab">
+                    <h2 class="section-title">Revoke Certificate</h2>
+                    <p style="margin-bottom: 20px; color: #666;">
+                        ⚠️ This action is permanent and cannot be undone. The certificate will be marked as invalid.
+                    </p>
+
+                    <div class="form-group">
+                        <label for="revokeHash">Certificate Hash *</label>
+                        <input type="text" id="revokeHash" placeholder="64-character SHA-256 hash" required>
+                    </div>
+
+                    <button class="danger" onclick="revokeCertificate()">❌ Revoke Certificate</button>
+
+                    <div class="loading" id="revokeLoading">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 10px; color: #666;">Revoking certificate...</p>
+                    </div>
+
+                    <div class="result" id="revokeResult"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🔒 All certificates are stored securely on the Ethereum blockchain with IPFS backup</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Version 2.0 • Enhanced with JWT Auth, IPFS & Revocation</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = "http://localhost:3000/api";
+
+        // ============ Authentication ============
+
+        function toggleAuthForm() {
+            const loginForm = document.getElementById("loginForm");
+            const regForm = document.getElementById("registerForm");
+            loginForm.classList.toggle("active");
+            regForm.classList.toggle("active");
+        }
+
+        async function login() {
+            const email = document.getElementById("loginEmail").value;
+            const password = document.getElementById("loginPassword").value;
+
+            if (!email || !password) {
+                showAlert("Please enter email and password", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    showAlert(data.message || "Login failed", "error");
+                    return;
+                }
+
+                // Store token
+                localStorage.setItem("authToken", data.data.token);
+                localStorage.setItem("userEmail", email);
+
+                // Update UI
+                updateAuthUI(true, email);
+                showAlert("Login successful!", "success");
+            } catch (error) {
+                showAlert("Error: " + error.message, "error");
+            }
+        }
+
+        async function register() {
+            const name = document.getElementById("regName").value;
+            const email = document.getElementById("regEmail").value;
+            const password = document.getElementById("regPassword").value;
+
+            if (!email || !password || !name) {
+                showAlert("Please fill all fields", "error");
+                return;
+            }
+
+            if (password.length < 8) {
+                showAlert("Password must be at least 8 characters", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    showAlert(data.message || "Registration failed", "error");
+                    return;
+                }
+
+                // Store token
+                localStorage.setItem("authToken", data.data.token);
+                localStorage.setItem("userEmail", email);
+
+                // Update UI
+                updateAuthUI(true, email);
+                showAlert("Account created successfully!", "success");
+            } catch (error) {
+                showAlert("Error: " + error.message, "error");
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("userEmail");
+            updateAuthUI(false);
+            showAlert("Logged out successfully", "info");
+        }
+
+        function updateAuthUI(isLoggedIn, email = "") {
+            const loginForm = document.getElementById("loginForm");
+            const authStatus = document.getElementById("authStatus");
+            const mainContent = document.getElementById("mainContent");
+
+            if (isLoggedIn) {
+                loginForm.classList.remove("active");
+                authStatus.classList.add("active");
+                mainContent.style.display = "block";
+                document.getElementById("userEmail").textContent = email;
+            } else {
+                loginForm.classList.add("active");
+                authStatus.classList.remove("active");
+                mainContent.style.display = "none";
+            }
+        }
+
+        // ============ Tab Navigation ============
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll(".tab-content").forEach(tab => {
+                tab.classList.remove("active");
+            });
+            document.querySelectorAll(".tab-btn").forEach(btn => {
+                btn.classList.remove("active");
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + "Tab").classList.add("active");
+            event.target.classList.add("active");
+        }
+
+        // ============ Certificate Operations ============
+
+        function updateFileName(input, type = "upload") {
+            const fileName = input.files[0]?.name || "";
+            const idSuffix = type === "verify" ? "Verify" : "Upload";
+            document.getElementById(idSuffix + "FileName").textContent = fileName ? "Selected: " + fileName : "";
+        }
+
+        async function uploadCertificate(event) {
+            event.preventDefault();
+
+            const file = document.getElementById("uploadFile").files[0];
+            const studentName = document.getElementById("studentName").value;
+            const course = document.getElementById("course").value;
+
+            if (!file || !studentName || !course) {
+                showAlert("Please fill all fields", "error");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("studentName", studentName);
+            formData.append("course", course);
+
+            showLoading(true, "uploadLoading");
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/certificates/upload`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + localStorage.getItem("authToken")
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    showResult("uploadResult", data.message || "Upload failed", "error");
+                } else {
+                    const cert = data.data;
+                    let resultHTML = `<strong style="color: #2e7d32;">✅ Certificate Uploaded Successfully!</strong>
+                    <div class="certificate-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Student Name:</span>
+                            <span class="detail-value">${cert.studentName}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Course:</span>
+                            <span class="detail-value">${cert.course}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Issued Date:</span>
+                            <span class="detail-value">${new Date(cert.issuedDate).toLocaleString()}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">File Hash:</span>
+                            <span class="detail-value" style="font-family: monospace;">${cert.hash}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">IPFS CID:</span>
+                            <span class="detail-value" style="font-family: monospace;">${cert.ipfsCID || "Not stored"}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">TX Hash:</span>
+                            <span class="detail-value" style="font-family: monospace; font-size: 0.9em;">${cert.transactionHash}</span>
+                        </div>
+                    </div>`;
+                    showResult("uploadResult", resultHTML, "success");
+                    clearUploadForm();
+                }
+            } catch (error) {
+                showResult("uploadResult", "Error: " + error.message, "error");
+            }
+
+            showLoading(false, "uploadLoading");
+        }
+
+        async function verifyCertificate() {
+            const file = document.getElementById("verifyFile").files[0];
+            const hash = document.getElementById("verifyHash").value;
+
+            if (!file && !hash) {
+                showAlert("Please provide a file or hash", "error");
+                return;
+            }
+
+            showLoading(true, "verifyLoading");
+
+            try {
+                let response;
+
+                if (file) {
+                    const formData = new FormData();
+                    formData.append("file", file);
+
+                    response = await fetch(`${API_BASE_URL}/certificates/verify`, {
+                        method: "POST",
+                        body: formData
+                    });
+                } else {
+                    const formData = new FormData();
+                    formData.append("hash", hash);
+
+                    response = await fetch(`${API_BASE_URL}/certificates/verify`, {
+                        method: "POST",
+                        body: formData
+                    });
+                }
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    showResult("verifyResult", data.message || "Verification failed", "error");
+                } else {
+                    const cert = data.data;
+                    const statusBadge = cert.isValid ? 
+                        '<span class="status-badge status-valid">✅ VALID</span>' : 
+                        (cert.isRevoked ? 
+                        '<span class="status-badge status-revoked">⚠️ REVOKED</span>' : 
+                        '<span class="status-badge status-invalid">❌ INVALID</span>');
+
+                    let resultHTML = `<strong>${statusBadge}</strong>`;
+
+                    if (cert.certificate) {
+                        resultHTML += `
+                        <div class="certificate-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Student Name:</span>
+                                <span class="detail-value">${cert.certificate.studentName}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Course:</span>
+                                <span class="detail-value">${cert.certificate.course}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Issued Date:</span>
+                                <span class="detail-value">${new Date(cert.certificate.issuedDate).toLocaleString()}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">File Hash:</span>
+                                <span class="detail-value" style="font-family: monospace; font-size: 0.9em;">${cert.hash}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Status:</span>
+                                <span class="detail-value">${cert.certificate.isRevoked ? "Revoked" : "Active"}</span>
+                            </div>
+                        </div>`;
+                    }
+
+                    showResult("verifyResult", resultHTML, cert.isValid ? "success" : "error");
+                }
+            } catch (error) {
+                showResult("verifyResult", "Error: " + error.message, "error");
+            }
+
+            showLoading(false, "verifyLoading");
+        }
+
+        async function revokeCertificate() {
+            const hash = document.getElementById("revokeHash").value;
+
+            if (!hash) {
+                showAlert("Please enter certificate hash", "error");
+                return;
+            }
+
+            if (!confirm("⚠️ Are you sure? This action cannot be undone!")) {
+                return;
+            }
+
+            showLoading(true, "revokeLoading");
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/certificates/revoke`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + localStorage.getItem("authToken")
+                    },
+                    body: JSON.stringify({ hash })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    showResult("revokeResult", data.message || "Revocation failed", "error");
+                } else {
+                    const result = data.data;
+                    const resultHTML = `<strong style="color: #2e7d32;">✅ Certificate Revoked Successfully!</strong>
+                    <div class="certificate-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Hash:</span>
+                            <span class="detail-value" style="font-family: monospace; font-size: 0.9em;">${result.hash}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">TX Hash:</span>
+                            <span class="detail-value" style="font-family: monospace; font-size: 0.9em;">${result.transactionHash}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Revoked By:</span>
+                            <span class="detail-value">${result.revokedBy}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Timestamp:</span>
+                            <span class="detail-value">${result.timestamp}</span>
+                        </div>
+                    </div>`;
+                    showResult("revokeResult", resultHTML, "success");
+                    document.getElementById("revokeHash").value = "";
+                }
+            } catch (error) {
+                showResult("revokeResult", "Error: " + error.message, "error");
+            }
+
+            showLoading(false, "revokeLoading");
+        }
+
+        // ============ UI Helpers ============
+
+        function clearUploadForm() {
+            document.getElementById("uploadFile").value = "";
+            document.getElementById("studentName").value = "";
+            document.getElementById("course").value = "";
+            document.getElementById("uploadFileName").textContent = "";
+        }
+
+        function showLoading(show, elementId) {
+            const element = document.getElementById(elementId);
+            if (show) {
+                element.classList.add("active");
+            } else {
+                element.classList.remove("active");
+            }
+        }
+
+        function showResult(elementId, message, type = "info") {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result-content">${message}</div>`;
+            element.classList.remove("success", "error", "info");
+            element.classList.add(type);
+        }
+
+        function showAlert(message, type = "info") {
+            // Simple alert - in production use a toast notification library
+            alert(message);
+        }
+
+        // ============ Check Authentication on Load ============
+
+        window.addEventListener("load", () => {
+            const token = localStorage.getItem("authToken");
+            const email = localStorage.getItem("userEmail");
+
+            if (token && email) {
+                updateAuthUI(true, email);
+            } else {
+                updateAuthUI(false);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "network": "localhost",
+  "contract": "ProductionCertificate",
+  "address": "0x3C844D346384B66903917cc3eE5eb14b7943c553",
+  "deployer": "0x57257a6104D7CB5638b31cB05fb52Ac5D591c16D",
+  "timestamp": "2026-05-14T17:05:40.530Z",
+  "gitCommit": null
+}

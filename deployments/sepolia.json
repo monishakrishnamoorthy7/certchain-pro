@@ -1,0 +1,8 @@
+{
+  "network": "sepolia",
+  "contract": "ProductionCertificate",
+  "address": "0x3C844D346384B66903917cc3eE5eb14b7943c553",
+  "deployer": "0x8D76aC3d5BF609542D51B0E763740cfAB8cab776",
+  "timestamp": "2026-05-13T16:57:25.438Z",
+  "gitCommit": null
+}

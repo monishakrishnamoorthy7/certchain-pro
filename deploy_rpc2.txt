@@ -1,0 +1,29 @@
+﻿Compiling contract...
+PRIVATE_KEY wallet has zero balance ΓÇö falling back to RPC account
+Deploying using RPC account: JsonRpcSigner {
+  provider: JsonRpcProvider {},
+  address: '0xa649e89a174A4cB10be6ee14F65b372DcdACB4Eb'
+}
+node : Error: factory runner does not support sending transactions 
+(operation="sendTransaction", code=UNSUPPORTED_OPERATION, version=6.16.0)
+At line:1 char:1
++ node scripts/deploy_manual.js 2>&1 | Out-File deploy_rpc2.txt -Encodi ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Error: factory ...version=6.16.0) 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    at makeError (C:\Users\LENOVO\OneDrive\Desktop\certificate-project\node_mod
+ules\ethers\lib.commonjs\utils\errors.js:137:21)
+    at assert (C:\Users\LENOVO\OneDrive\Desktop\certificate-project\node_module
+s\ethers\lib.commonjs\utils\errors.js:157:15)
+    at ContractFactory.deploy (C:\Users\LENOVO\OneDrive\Desktop\certificate-pro
+ject\node_modules\ethers\lib.commonjs\contract\factory.js:82:31)
+    at process.processTicksAndRejections 
+(node:internal/process/task_queues:105:5)
+    at async main (C:\Users\LENOVO\OneDrive\Desktop\certificate-project\scripts
+\deploy_manual.js:81:20) {
+  code: 'UNSUPPORTED_OPERATION',
+  operation: 'sendTransaction',
+  shortMessage: 'factory runner does not support sending transactions'
+}

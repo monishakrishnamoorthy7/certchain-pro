@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CertChain Pro - Blockchain Certificate Verification</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0f1e;--surface:#111827;--card:#1a2236;--border:#1e3a5f;--accent:#3b82f6;--accent2:#6366f1;--green:#22c55e;--red:#ef4444;--text:#e2e8f0;--muted:#64748b;--radius:12px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.navbar{display:flex;justify-content:space-between;align-items:center;padding:18px 40px;background:rgba(17,24,39,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,#3b82f6,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-right{display:flex;gap:12px;align-items:center}
+#adminBadge{display:none;background:rgba(59,130,246,.15);color:var(--accent);padding:6px 14px;border-radius:20px;font-size:.85rem;font-weight:600}
+.btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:.9rem;transition:all .2s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff}
+.btn-primary:hover{opacity:.85;transform:translateY(-1px)}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.btn-danger:hover{background:rgba(239,68,68,.25)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.hero{text-align:center;padding:60px 20px 40px;background:radial-gradient(ellipse at 50% 0%,rgba(59,130,246,.12) 0%,transparent 70%)}
+.hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;line-height:1.1;margin-bottom:12px}
+.hero h1 span{background:linear-gradient(135deg,#3b82f6,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);font-size:1.05rem;max-width:540px;margin:0 auto 24px}
+.stats{display:flex;justify-content:center;gap:30px;padding:10px 0 40px;flex-wrap:wrap}
+.stat{text-align:center;background:var(--surface);padding:15px 25px;border-radius:12px;border:1px solid var(--border);min-width:140px}
+.stat-num{font-size:1.6rem;font-weight:800;color:var(--accent)}
+.stat-label{color:var(--muted);font-size:.8rem;margin-top:4px}
+.main{max-width:900px;margin:0 auto;padding:0 20px 60px}
+.tabs{display:flex;gap:4px;background:var(--surface);border-radius:12px;padding:4px;margin-bottom:28px;border:1px solid var(--border);overflow-x:auto}
+.tab{flex:1;padding:12px;text-align:center;border-radius:8px;cursor:pointer;font-weight:500;color:var(--muted);transition:all .2s;font-size:.85rem;border:none;background:none;white-space:nowrap}
+.tab.active{background:var(--card);color:var(--text);font-weight:600}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
+.card-title{font-size:1.1rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.field input{width:100%;background:#0d1628;border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:8px;font-size:.95rem;outline:none;transition:border .2s;font-family:inherit}
+.field input:focus{border-color:var(--accent)}
+.dropzone{border:2px dashed var(--border);border-radius:10px;padding:40px 20px;text-align:center;cursor:pointer;transition:all .2s;background:#0d1628}
+.dropzone:hover{border-color:var(--accent);background:rgba(59,130,246,.05)}
+.dropzone p{color:var(--muted);font-size:.85rem;margin-top:8px}
+.dz-icon{font-size:2.5rem;margin-bottom:10px}
+.file-chosen{color:var(--accent);font-weight:600;margin-top:10px;font-size:.85rem}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted);font-size:.8rem}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.result-box{margin-top:20px;border-radius:10px;overflow:hidden;display:none}
+.result-box.show{display:block}
+.result-header{padding:16px 20px;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:10px}
+.result-header.valid{background:rgba(34,197,94,.15);color:var(--green)}
+.result-header.revoked{background:rgba(239,68,68,.15);color:var(--red)}
+.result-header.notfound{background:rgba(100,116,139,.15);color:var(--muted)}
+.result-header.success{background:rgba(34,197,94,.15);color:var(--green)}
+.result-header.error{background:rgba(239,68,68,.15);color:var(--red)}
+.result-body{background:var(--surface);padding:20px}
+.detail-row{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);gap:16px}
+.detail-row:last-child{border:none}
+.detail-label{color:var(--muted);font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.4px;min-width:110px}
+.detail-value{color:var(--text);font-size:.9rem;text-align:right;word-break:break-all}
+.mono{font-family:monospace;font-size:.75rem}
+.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:700;text-transform:uppercase}
+.badge-valid{background:rgba(34,197,94,.15);color:var(--green)}
+.badge-revoked{background:rgba(239,68,68,.15);color:var(--red)}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-box{text-align:center;padding:24px;display:none}
+.loading-box.show{display:block}
+.qr-container{background:#fff;padding:15px;border-radius:12px;display:inline-block;margin:20px 0;box-shadow:0 8px 20px rgba(0,0,0,0.3)}
+.qr-container canvas, .qr-container img{display:block;margin:0 auto}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;width:100%;max-width:400px}
+.logs-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.logs-table th{text-align:left;color:var(--muted);padding:12px 8px;border-bottom:1px solid var(--border);text-transform:uppercase;font-size:.7rem}
+.logs-table td{padding:12px 8px;border-bottom:1px solid var(--border)}
+.log-action{font-weight:700;text-transform:uppercase;font-size:.7rem}
+.action-upload{color:var(--accent)}
+.action-verify{color:var(--green)}
+.action-revoke{color:var(--red)}
+footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border)}
+footer span{color:var(--accent)}
+@media(max-width:600px){.navbar{padding:14px 20px}.hero{padding:40px 20px}.tabs{justify-content:flex-start}.main{padding:0 15px}}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="logo">🔐 CertChain Pro</div>
+  <div class="nav-right">
+    <span id="adminBadge">⚡ Admin</span>
+    <button class="btn btn-outline" id="loginBtn" onclick="openLogin()">Admin Login</button>
+    <button class="btn btn-danger" id="logoutBtn" onclick="logout()" style="display:none">Logout</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Blockchain <span>Certificate</span> Ecosystem</h1>
+  <p>Production-grade certificate verification with full audit trails and secure document storage.</p>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num" id="totalCerts">—</div><div class="stat-label">Total Certificates</div></div>
+  <div class="stat"><div class="stat-num" id="validCerts">—</div><div class="stat-label">Valid</div></div>
+  <div class="stat"><div class="stat-num" id="revokedCerts">—</div><div class="stat-label">Revoked</div></div>
+</div>
+
+<div class="main">
+  <div class="tabs" id="tabBar">
+    <button class="tab active" id="tab-verify" onclick="switchTab('verify')">✅ Verify</button>
+    <button class="tab" id="tab-upload" onclick="switchTab('upload')" style="display:none">📤 Upload</button>
+    <button class="tab" id="tab-revoke" onclick="switchTab('revoke')" style="display:none">❌ Revoke</button>
+    <button class="tab" id="tab-logs" onclick="switchTab('logs')" style="display:none">📜 Audit Logs</button>
+  </div>
+
+  <!-- VERIFY -->
+  <div class="tab-panel active" id="verifyPanel">
+    <div class="card">
+      <div class="card-title">🔍 Quick Verification</div>
+      <div class="dropzone" id="verifyDrop" onclick="document.getElementById('verifyFile').click()">
+        <div class="dz-icon">📄</div>
+        <div style="font-weight:600">Select Certificate File</div>
+        <p>PDF, PNG, JPG supported (Max 5MB)</p>
+        <div class="file-chosen" id="verifyChosen"></div>
+        <input type="file" id="verifyFile" style="display:none" onchange="onFileChange(this, 'verifyChosen')">
+      </div>
+      <div class="divider">OR USE HASH</div>
+      <div class="field"><label>Cert Hash</label><input type="text" id="verifyHash" placeholder="Enter SHA-256 hash..."></div>
+      <button class="btn btn-primary" style="width:100%;padding:14px" onclick="verifyCert()">Verify Authenticity</button>
+      <div class="loading-box" id="verifyLoading"><div class="spinner"></div><p>Querying Network...</p></div>
+      <div class="result-box" id="verifyResult"></div>
+    </div>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="tab-panel" id="uploadPanel">
+    <div class="card">
+      <div class="admin-note">🛡️ SECURE UPLOAD: File is hashed on blockchain & stored in encrypted storage.</div>
+      <div class="dropzone" onclick="document.getElementById('uploadFile').click()">
+        <div class="dz-icon">📤</div>
+        <div style="font-weight:600">Select Document</div>
+        <p>Max 5MB • PDF, PNG, JPG</p>
+        <div class="file-chosen" id="uploadChosen"></div>
+        <input type="file" id="uploadFile" style="display:none" onchange="onFileChange(this, 'uploadChosen')">
+      </div>
+      <div style="height:20px"></div>
+      <div class="field"><label>Student Name</label><input type="text" id="studentName"></div>
+      <div class="field"><label>Course Title</label><input type="text" id="courseName"></div>
+      <button class="btn btn-primary" style="width:100%;padding:14px" onclick="uploadCert()">Deploy to Blockchain</button>
+      <div class="loading-box" id="uploadLoading"><div class="spinner"></div><p>Broadcasting to Ethereum...</p></div>
+      <div class="result-box" id="uploadResult"></div>
+    </div>
+  </div>
+
+  <!-- REVOKE -->
+  <div class="tab-panel" id="revokePanel">
+    <div class="card">
+      <div class="admin-note" style="color:var(--red);background:rgba(239,68,68,.05)">⚠️ WARNING: This action is permanent on the blockchain.</div>
+      <div class="field"><label>Cert Hash to Revoke</label><input type="text" id="revokeHash"></div>
+      <button class="btn btn-danger" style="width:100%;padding:14px" onclick="revokeCert()">Revoke Certificate</button>
+      <div class="loading-box" id="revokeLoading"><div class="spinner"></div><p>Updating Ledger...</p></div>
+      <div class="result-box" id="revokeResult"></div>
+    </div>
+  </div>
+
+  <!-- LOGS -->
+  <div class="tab-panel" id="logsPanel">
+    <div class="card">
+      <div class="card-title">📜 Audit Logs</div>
+      <div style="overflow-x:auto">
+        <table class="logs-table">
+          <thead><tr><th>Time</th><th>Action</th><th>Actor</th><th>Details</th></tr></thead>
+          <tbody id="logsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer><p>Production Ledger Secured by <span>Ethereum</span> &bull; CertChain Pro v3.5</p></footer>
+
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <button class="modal-close" style="float:right;background:none;border:none;color:var(--muted);font-size:1.5rem" onclick="closeLogin()">✕</button>
+    <h2>Admin Access</h2>
+    <p class="sub">Enter credentials to manage the ecosystem.</p>
+    <div class="field"><label>Email</label><input type="email" id="loginEmail" value="admin@certchain.com"></div>
+    <div class="field"><label>Password</label><input type="password" id="loginPass" value="Admin@1234"></div>
+    <div class="err-msg" id="loginError" style="color:var(--red);font-size:.8rem;margin-bottom:10px;display:none"></div>
+    <button class="btn btn-primary" style="width:100%;padding:14px" onclick="doLogin()">Authenticate</button>
+  </div>
+</div>
+
+<script>
+const API_BASE = '/api';
+let token = localStorage.getItem('token');
+let currentFiles = { verify: null, upload: null };
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById(name + 'Panel').classList.add('active');
+  if (name === 'logs') loadLogs();
+}
+
+function openLogin() { document.getElementById('loginModal').classList.add('show'); }
+function closeLogin() { document.getElementById('loginModal').classList.remove('show'); }
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPass').value;
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email, password})
+    });
+    const d = await res.json();
+    if (!d.success) {
+      document.getElementById('loginError').textContent = d.message;
+      document.getElementById('loginError').style.display = 'block';
+      return;
+    }
+    token = d.data.token;
+    localStorage.setItem('token', token);
+    setAdminMode(true, d.data.name);
+    closeLogin();
+  } catch(e) { alert('Login failed'); }
+}
+
+function logout() {
+  token = null;
+  localStorage.removeItem('token');
+  setAdminMode(false);
+  switchTab('verify');
+}
+
+function setAdminMode(on, name) {
+  document.getElementById('adminBadge').style.display = on ? 'block' : 'none';
+  document.getElementById('loginBtn').style.display = on ? 'none' : 'block';
+  document.getElementById('logoutBtn').style.display = on ? 'block' : 'none';
+  ['upload','revoke','logs'].forEach(id => document.getElementById('tab-'+id).style.display = on ? 'flex' : 'none');
+  if(on) document.getElementById('adminBadge').textContent = 'Admin: ' + name;
+}
+
+function onFileChange(input, labelId) {
+  const file = input.files[0];
+  if(file && file.size > 5 * 1024 * 1024) { alert('File too large (Max 5MB)'); input.value = ''; return; }
+  document.getElementById(labelId).textContent = file ? '✓ ' + file.name : '';
+  if(labelId.includes('verify')) currentFiles.verify = file;
+  else currentFiles.upload = file;
+}
+
+async function verifyCert() {
+  const hash = document.getElementById('verifyHash').value.trim();
+  if(!hash && !currentFiles.verify) return alert('Provide hash or file');
+  setLoading('verifyLoading', true);
+  try {
+    const fd = new FormData();
+    if(currentFiles.verify) fd.append('file', currentFiles.verify);
+    else fd.append('hash', hash);
+    const res = await fetch(`${API_BASE}/certificate/verify`, { method: 'POST', body: fd });
+    const d = await res.json();
+    showResult('verifyResult', buildResultHTML(d.data));
+  } catch(e) { alert('Verification error'); }
+  setLoading('verifyLoading', false);
+}
+
+async function uploadCert() {
+  if(!currentFiles.upload) return alert('Select file');
+  const name = document.getElementById('studentName').value.trim();
+  const course = document.getElementById('courseName').value.trim();
+  if(!name || !course) return alert('Fill all fields');
+  setLoading('uploadLoading', true);
+  try {
+    const fd = new FormData();
+    fd.append('file', currentFiles.upload);
+    fd.append('studentName', name);
+    fd.append('course', course);
+    const res = await fetch(`${API_BASE}/certificate/upload`, {
+      method: 'POST',
+      headers: {'Authorization': 'Bearer ' + token},
+      body: fd
+    });
+    const d = await res.json();
+    if(d.success) {
+      showResult('uploadResult', buildUploadHTML(d.data));
+      loadStats();
+    } else alert(d.message);
+  } catch(e) { alert('Upload failed'); }
+  setLoading('uploadLoading', false);
+}
+
+async function revokeCert() {
+  const hash = document.getElementById('revokeHash').value.trim();
+  if(!hash) return;
+  if(!confirm('Permanent Revocation?')) return;
+  setLoading('revokeLoading', true);
+  try {
+    const res = await fetch(`${API_BASE}/certificate/revoke`, {
+      method: 'POST',
+      headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'},
+      body: JSON.stringify({hash})
+    });
+    const d = await res.json();
+    if(d.success) {
+      alert('Revoked Successfully');
+      loadStats();
+    } else alert(d.message);
+  } catch(e) { alert('Revoke error'); }
+  setLoading('revokeLoading', false);
+}
+
+async function loadLogs() {
+  try {
+    const res = await fetch(`${API_BASE}/logs`, { headers: {'Authorization': 'Bearer ' + token} });
+    const d = await res.json();
+    const rows = d.data.map(l => `
+      <tr>
+        <td>${new Date(l.timestamp).toLocaleTimeString()}</td>
+        <td class="log-action action-${l.action}">${l.action}</td>
+        <td>${l.actor}</td>
+        <td>${l.details}</td>
+      </tr>`).join('');
+    document.getElementById('logsBody').innerHTML = rows;
+  } catch(e) {}
+}
+
+function buildResultHTML(d) {
+  if(!d.found) return `<div class="result-header notfound">❓ NOT FOUND</div><div class="result-body">No record on blockchain for this document.</div>`;
+  const isValid = d.isValid;
+  return `
+    <div class="result-header ${isValid ? 'valid' : 'revoked'}">${isValid ? '✅ VALID' : '❌ REVOKED'}</div>
+    <div class="result-body">
+      <div class="detail-row"><span class="detail-label">Student</span><span class="detail-value">${d.studentName}</span></div>
+      <div class="detail-row"><span class="detail-label">Course</span><span class="detail-value">${d.course}</span></div>
+      <div class="detail-row"><span class="detail-label">Issued</span><span class="detail-value">${new Date(d.issuedDate).toLocaleDateString()}</span></div>
+      <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge ${isValid?'badge-valid':'badge-revoked'}">${isValid?'VALID':'REVOKED'}</span></span></div>
+      <div class="detail-row"><span class="detail-label">Ledger Hash</span><span class="detail-value mono">${d.hash}</span></div>
+    </div>`;
+}
+
+function buildUploadHTML(c) {
+  const qrLink = `http://${location.hostname}:3000/verify-hash/${c.hash}`;
+  setTimeout(() => {
+    document.getElementById('qrcode-box').innerHTML = '';
+    new QRCode(document.getElementById('qrcode-box'), {text: qrLink, width: 140, height: 140});
+  }, 100);
+  return `
+    <div class="result-header success">✅ DEPLOYED SUCCESSFULLY</div>
+    <div class="result-body">
+      <div class="detail-row"><span class="detail-label">Hash</span><span class="detail-value mono">${c.hash}</span></div>
+      <div style="text-align:center;margin-top:20px">
+        <div class="qr-container" id="qrcode-box"></div>
+        <p style="font-size:.7rem;color:var(--muted)">Verification QR Generated</p>
+      </div>
+    </div>`;
+}
+
+async function loadStats() {
+  try {
+    const res = await fetch(`${API_BASE}/status`);
+    const d = await res.json();
+    if(d.success) {
+      document.getElementById('totalCerts').textContent = d.data.totalCertificates;
+      document.getElementById('validCerts').textContent = d.data.totalCertificates - d.data.revokedCertificates;
+      document.getElementById('revokedCerts').textContent = d.data.revokedCertificates;
+    }
+  } catch(e) {}
+}
+
+function setLoading(id, on) { document.getElementById(id).classList.toggle('show', on); }
+function showResult(id, html) { const el = document.getElementById(id); el.innerHTML = html; el.classList.add('show'); }
+
+// Init
+loadStats();
+if(token) {
+  try {
+    const p = JSON.parse(atob(token.split('.')[1]));
+    if(p.exp * 1000 > Date.now()) setAdminMode(true, p.name);
+  } catch(e) { localStorage.removeItem('token'); }
+}
+</script>
+</body>
+</html>
