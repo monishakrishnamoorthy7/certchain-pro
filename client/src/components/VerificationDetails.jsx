@@ -8,6 +8,9 @@ export default function VerificationDetails({ data }) {
   const ipfsHash = data.ipfsCid || data.ipfsHash || data.ipfs || null;
   const txLink = getTxLink(txHash, data.chainId);
 
+  const issuerDisplay = issuer || (data.dbStatus === 'PENDING' ? 'Pending' : '—');
+  const txDisplay = txHash || (data.dbStatus === 'PENDING' ? 'Pending' : '—');
+
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
       <div className="flex items-center justify-between">
@@ -41,12 +44,12 @@ export default function VerificationDetails({ data }) {
           </div>
           <div>
             <div className="text-xs uppercase text-slate-500">Issuer Wallet</div>
-            <div className="mt-1 font-mono text-xs text-slate-300">{issuer || "—"}</div>
+            <div className="mt-1 font-mono text-xs text-slate-300">{issuerDisplay}</div>
           </div>
           <div>
             <div className="text-xs uppercase text-slate-500">Transaction</div>
             <div className="mt-1 font-mono text-xs text-slate-300">
-              {txHash || "—"}
+              {txDisplay}
             </div>
             {data.transactionHash ? (
               <div className="mt-2 flex items-center gap-3">
