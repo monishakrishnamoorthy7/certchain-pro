@@ -5,13 +5,13 @@ import Dropzone from "../Dropzone.jsx";
 import Field from "../Field.jsx";
 import LoadingBox from "../LoadingBox.jsx";
 import ResultBox from "../ResultBox.jsx";
-import useVerification from "../../hooks/useVerification.js";
+import { verifyByFile as serviceVerifyByFile } from "../../services/verification.js";
 import VerifyResults from "../VerifyResults.jsx";
 
 export default function VerifyPanel({ defaultHash }) {
   const [file, setFile] = useState(null);
   const [hash, setHash] = useState("");
-  const { state, verifyByFile, reset } = useVerification();
+  // verification actions are handled in the results component; use the service directly for file uploads
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,14 +20,13 @@ export default function VerifyPanel({ defaultHash }) {
 
   const handleVerifyHash = () => {
     if (!hash) return;
-    reset();
     navigate(`/verify/${hash}`);
   };
 
   const handleVerifyFile = async () => {
     if (!file) return;
     try {
-      const data = await verifyByFile(file);
+      const data = await serviceVerifyByFile(file);
       if (data?.hash) {
         navigate(`/verify/${data.hash}`);
       }
@@ -79,13 +78,7 @@ export default function VerifyPanel({ defaultHash }) {
 
         {hash && <VerifyResults hash={hash} />}
 
-        {state.status === "loading" ? <LoadingBox label="Querying network..." /> : null}
-        {state.status === "idle" ? (
-          <ResultBox title="Awaiting verification" message="Results will appear here." />
-        ) : null}
-        {state.status === "error" ? (
-          <ResultBox title="Verification failed" message={state.error} tone="error" />
-        ) : null}
+        {hash && <VerifyResults hash={hash} />}
       </div>
     </Card>
   );
