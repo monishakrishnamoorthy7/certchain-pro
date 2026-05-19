@@ -261,15 +261,22 @@ const safeSerialize = (payload) => {
 exports.verifyCertificate = async (req, res) => {
   try {
     let hash = req.body.hash;
+    // Log incoming verification requests to aid local debugging
+    console.log('[verify] incoming request', { hasFile: !!req.file, bodyHash: req.body.hash });
     if (req.file) {
       if (!req.file.buffer) {
         return res.status(400).json({ success: false, message: 'Invalid upload payload' });
       }
       hash = hashBuffer(req.file.buffer);
+      console.log('[verify] computed hash from uploaded file', { hash });
     }
 
-    if (!hash) return res.status(400).json({ success: false, message: 'Hash or file required' });
+    if (!hash) {
+      console.log('[verify] no hash supplied');
+      return res.status(400).json({ success: false, message: 'Hash or file required' });
+    }
 
+    console.log('[verify] verifying hash', hash);
     const data = await buildVerificationPayload(hash);
     if (!data || data.status === 'NOT_FOUND') {
       await logAction(req, 'verify', `Verified cert lookup`, 'NOT_FOUND', hash).catch(() => {});

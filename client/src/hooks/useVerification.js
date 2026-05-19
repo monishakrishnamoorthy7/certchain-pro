@@ -9,30 +9,77 @@ export default function useVerification() {
   });
 
   const runVerifyByHash = useCallback(async (hash) => {
-    setState({ status: "loading", data: null, error: null });
+    setState({
+      status: "loading",
+      data: null,
+      error: null
+    });
+
     try {
-      const data = await verifyByHash(hash);
-      setState({ status: "success", data, error: null });
-      return data;
+      const response = await verifyByHash(hash);
+
+      const certificate = response?.certificate || response;
+
+      setState({
+        status: "success",
+        data: certificate,
+        error: null
+      });
+
+      return certificate;
     } catch (error) {
-      setState({ status: "error", data: null, error: error.message || "Verification failed" });
+      setState({
+        status: "error",
+        data: null,
+        error: error.message || "Verification failed"
+      });
+
       throw error;
     }
   }, []);
 
   const runVerifyByFile = useCallback(async (file) => {
-    setState({ status: "loading", data: null, error: null });
+    setState({
+      status: "loading",
+      data: null,
+      error: null
+    });
+
     try {
-      const data = await verifyByFile(file);
-      setState({ status: "success", data, error: null });
-      return data;
+      const response = await verifyByFile(file);
+
+      const certificate = response?.certificate || response;
+
+      setState({
+        status: "success",
+        data: certificate,
+        error: null
+      });
+
+      return certificate;
     } catch (error) {
-      setState({ status: "error", data: null, error: error.message || "Verification failed" });
+      setState({
+        status: "error",
+        data: null,
+        error: error.message || "Verification failed"
+      });
+
       throw error;
     }
   }, []);
 
-  const reset = () => setState({ status: "idle", data: null, error: null });
+  const reset = () => {
+    setState({
+      status: "idle",
+      data: null,
+      error: null
+    });
+  };
 
-  return { state, verifyByHash: runVerifyByHash, verifyByFile: runVerifyByFile, reset };
+  return {
+    state,
+    verifyByHash: runVerifyByHash,
+    verifyByFile: runVerifyByFile,
+    reset
+  };
 }

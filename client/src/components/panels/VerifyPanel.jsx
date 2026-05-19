@@ -1,42 +1,59 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Card from "../Card.jsx";
 import Dropzone from "../Dropzone.jsx";
 import Field from "../Field.jsx";
-import LoadingBox from "../LoadingBox.jsx";
-import ResultBox from "../ResultBox.jsx";
-import { verifyByFile as serviceVerifyByFile } from "../../services/verification.js";
 import VerifyResults from "../VerifyResults.jsx";
+import { verifyByFile as serviceVerifyByFile } from "../../services/verification.js";
 
 export default function VerifyPanel({ defaultHash }) {
   const [file, setFile] = useState(null);
   const [hash, setHash] = useState("");
-  // verification actions are handled in the results component; use the service directly for file uploads
-  const navigate = useNavigate();
+  const [activeHash, setActiveHash] = useState("");
 
   useEffect(() => {
-    if (defaultHash) setHash(defaultHash);
+    if (defaultHash) {
+      setHash(defaultHash);
+      setActiveHash(defaultHash);
+    }
   }, [defaultHash]);
 
   const handleVerifyHash = () => {
-    if (!hash) return;
-    navigate(`/verify/${hash}`);
+    if (!hash.trim()) return;
+
+    console.log("VERIFY HASH:", hash);
+
+    setActiveHash(hash.trim());
   };
 
   const handleVerifyFile = async () => {
     if (!file) return;
+
     try {
-      const data = await serviceVerifyByFile(file);
-      if (data?.hash) {
-        navigate(`/verify/${data.hash}`);
-      }
-    } catch (error) {
-      // handled in hook state
+      const response = await serviceVerifyByFile(file);
+
+      console.log("VERIFY FILE RESPONSE:", response);
+
+      const certificate = response?.certificate || response;
+
+      console.log("FULL RESPONSE", response);
+      console.log("CERTIFICATE", certificate);
+
+      setActiveHash("");
+
+      setTimeout(() => {
+        setHash(certificate.hash);
+        setActiveHash(certificate.hash);
+      }, 100);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   return (
-    <Card title="Quick Verification" description="Upload a certificate or paste a SHA-256 hash.">
+    <Card
+      title="Quick Verification"
+      description="Upload a certificate or paste a SHA-256 hash."
+    >
       <div className="space-y-6">
         <Dropzone
           label="Select Certificate File"
@@ -54,7 +71,7 @@ export default function VerifyPanel({ defaultHash }) {
         <Field label="Certificate Hash">
           <input
             value={hash}
-            onChange={(event) => setHash(event.target.value)}
+            onChange={(e) => setHash(e.target.value)}
             className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm text-slate-200 focus:border-blue-500 focus:outline-none"
             placeholder="Enter SHA-256 hash"
           />
@@ -76,9 +93,7 @@ export default function VerifyPanel({ defaultHash }) {
           Verify Uploaded File
         </button>
 
-        {hash && <VerifyResults hash={hash} />}
-
-        {hash && <VerifyResults hash={hash} />}
+        {activeHash && <VerifyResults hash={activeHash} />}
       </div>
     </Card>
   );
